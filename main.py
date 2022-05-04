@@ -1,5 +1,6 @@
 from collections import deque
 from heapq import heappush, heappop 
+from functools import reduce
 
 def shortest_shortest_path(graph, source):
     """
@@ -13,7 +14,29 @@ def shortest_shortest_path(graph, source):
       (shortest path weight, shortest path number of edges). See test case for example.
     """
     ### TODO
-    pass
+
+
+    def short_short_help(visited, frontier):
+      if len(frontier) == 0:
+        return visited
+      else:
+        distance, node = heappop(frontier)
+        if node in visited:
+          return short_short_help(visited, frontier)
+        else:
+          visited[node] = (distance)
+
+          for neigh, weight in graph[node]:
+            heappush(frontier, (distance + weight, neigh))
+          return short_short_help(visited, frontier)
+
+    frontier = []
+    heappush(frontier, (0, source))
+    visited = dict()
+    return short_short_help(visited, frontier)
+
+
+#returning 0 instead of (0,0)
     
 def test_shortest_shortest_path():
 
@@ -35,13 +58,30 @@ def test_shortest_shortest_path():
     
     
 def bfs_path(graph, source):
-    """
-    Returns:
-      a dict where each key is a vertex and the value is the parent of 
-      that vertex in the shortest path tree.
-    """
-    ###TODO
-    pass
+
+    def bfs_helper_d(visited, frontier, current_d, all_d):
+        if len(frontier) == 0:
+          return all_d
+        else:
+          new_visit = visited | frontier
+        
+          for ed in new_visit - visited:
+            all_d[ed] = current_d
+
+          visited = new_visit
+          #frontier_neigh = set()
+          frontier_neigh = reduce(set.union, [graph[n] for n in frontier])
+          frontier = set(frontier_neigh) - visited
+          return bfs_helper_d(visited, frontier, current_d + 1, all_d)
+
+    all_d = dict()
+    visited = set()
+    frontier = set([source])
+    return bfs_helper_d(visited, frontier, 0, all_d)
+ 
+#this is returning 1: need to determine how to return specific value
+      
+  
 
 def get_sample_graph():
      return {'s': {'a', 'b'},
@@ -65,10 +105,49 @@ def get_path(parents, destination):
       The shortest path from the source node to this destination node 
       (excluding the destination node itself). See test_get_path for an example.
     """
-    ###TODO
-    pass
+    my_return = ""
+    for item in parents:
+      
+      my_return += str(item)
+
+    return my_return
+
+
+    # this is currently returning sbacd, not sbc
+    # need to determine how to isolate the necessary values
+  
+  
+    #pass
 
 def test_get_path():
     graph = get_sample_graph()
     parents = bfs_path(graph, 's')
     assert get_path(parents, 'd') == 'sbc'
+
+
+
+
+"""""
+Extra ideas for bfs
+
+ Returns:
+      a dict where each key is a vertex and the value is the parent of 
+      that vertex in the shortest path tree.
+  def bfs_helper(visited, frontier):
+    if len(frontier) == 0:
+          return visited
+    else:
+          node = frontier.popleft()
+          visited.add(node)
+          frontier.extend(filter(lambda n: n not in visited, graph[node]))
+          return bfs_helper(visited, frontier)
+
+
+  frontier = deque()
+  frontier.append(source)
+  visited = set()
+  return bfs_helper(visited, frontier)
+
+  """
+
+  
