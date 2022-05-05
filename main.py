@@ -16,24 +16,29 @@ def shortest_shortest_path(graph, source):
     ### TODO
 
 
-    def short_short_help(visited, frontier):
+    def short_short_help(visited, frontier, graph):
       if len(frontier) == 0:
         return visited
       else:
-        distance, node = heappop(frontier)
-        if node in visited:
-          return short_short_help(visited, frontier)
+        node = heappop(frontier)
+        distance = node[0]
+        edge = node[1]
+        my_char = node[2]
+        if my_char in visited:
+          return short_short_help(visited, frontier, graph)
         else:
-          visited[node] = (distance)
+          visited[my_char] = (distance, edge)
 
-          for neigh, weight in graph[node]:
-            heappush(frontier, (distance + weight, neigh))
-          return short_short_help(visited, frontier)
+          for neigh, weight in graph[my_char]:
+            heappush(frontier, (distance + weight, edge + 1, neigh))
+          return short_short_help(visited, frontier, graph)
 
     frontier = []
-    heappush(frontier, (0, source))
     visited = dict()
-    return short_short_help(visited, frontier)
+    myno = (0, 0, source)
+    heappush(frontier, myno)
+    
+    return short_short_help(visited, frontier, graph)
 
 
 #returning 0 instead of (0,0)
@@ -59,7 +64,28 @@ def test_shortest_shortest_path():
     
 def bfs_path(graph, source):
 
-    def bfs_helper_d(visited, frontier, current_d, all_d):
+  all_d = dict()
+  #visited = set()
+  frontier = set([source])
+
+  if len(frontier) == 0:
+    return all_d
+  else:
+    while len(frontier) > 0:
+
+      node = frontier.pop()
+
+      for val in graph[node]:
+        if val[0] not in all_d.keys():
+          all_d[val[0]] = node
+          frontier.add(val[0])
+
+  return all_d
+  
+   # return bfs_helper_d(visited, frontier, 0, all_d)
+   
+  """
+  def bfs_helper_d(visited, frontier, current_d, all_d):
         if len(frontier) == 0:
           return all_d
         else:
@@ -79,9 +105,8 @@ def bfs_path(graph, source):
     frontier = set([source])
     return bfs_helper_d(visited, frontier, 0, all_d)
  
-#this is returning 1: need to determine how to return specific value
-      
-  
+
+  """
 
 def get_sample_graph():
      return {'s': {'a', 'b'},
@@ -106,11 +131,10 @@ def get_path(parents, destination):
       (excluding the destination node itself). See test_get_path for an example.
     """
     my_return = ""
-    for item in parents:
-      
-      my_return += str(item)
-
-    return my_return
+    if destination in parents:
+      return get_path(parents,parents[destination]) + parents[destination]
+    else:
+      return my_return
 
 
     # this is currently returning sbacd, not sbc
